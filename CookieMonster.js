@@ -2695,6 +2695,7 @@ CM.Sim.InitData = function() {
 		// Below is needed for above eval!
 		you.baseCps = me.baseCps;
 		you.name = me.name;
+		you.level = me.level;
 	}
 
 	// Upgrades
@@ -2770,11 +2771,44 @@ CM.Sim.CalculateGains = function() {
 	if (CM.Sim.Has('An itchy sweater')) mult *= 1.01;
 	if (CM.Sim.Has('Santa\'s dominion')) mult *= 1.2;
 
+	var buildMult=1;
+			if (Game.hasGod)
+			{
+				var godLvl=Game.hasGod('asceticism');
+				if (godLvl==1) mult*=1.15;
+				else if (godLvl==2) mult*=1.1;
+				else if (godLvl==3) mult*=1.05;
+				
+				var godLvl=Game.hasGod('ages');
+				if (godLvl==1) mult*=1+0.15*Math.sin((Date.now()/1000/(60*60*3))*Math.PI*2);
+				else if (godLvl==2) mult*=1+0.15*Math.sin((Date.now()/1000/(60*60*12))*Math.PI*2);
+				else if (godLvl==3) mult*=1+0.15*Math.sin((Date.now()/1000/(60*60*24))*Math.PI*2);
+				
+				var godLvl=Game.hasGod('decadence');
+				if (godLvl==1) buildMult*=0.93;
+				else if (godLvl==2) buildMult*=0.95;
+				else if (godLvl==3) buildMult*=0.98;
+				
+				var godLvl=Game.hasGod('industry');
+				if (godLvl==1) buildMult*=1.1;
+				else if (godLvl==2) buildMult*=1.05;
+				else if (godLvl==3) buildMult*=1.03;
+				
+				var godLvl=Game.hasGod('labor');
+				if (godLvl==1) buildMult*=0.97;
+				else if (godLvl==2) buildMult*=0.98;
+				else if (godLvl==3) buildMult*=0.99;
+			}
+
 	if (CM.Sim.Has('Santa\'s legacy')) mult *= 1 + (Game.santaLevel + 1) * 0.03;
 
 	for (var i in CM.Sim.Objects) {
 		var me = CM.Sim.Objects[i];
-		CM.Sim.cookiesPs += me.amount * (typeof(me.cps) == 'function' ? me.cps(me) : me.cps);
+
+		me.storedCps=(typeof(me.cps)=='function'?me.cps(me):me.cps);
+				if (Game.ascensionMode!=1) me.storedCps*=(1+me.level*0.01)*buildMult;
+				me.storedTotalCps=me.amount*me.storedCps;
+				CM.Sim.cookiesPs+=me.storedTotalCps;
 	}
 
 	if (CM.Sim.Has('"egg"')) CM.Sim.cookiesPs += 9; // "egg"
@@ -2782,6 +2816,13 @@ CM.Sim.CalculateGains = function() {
 	var milkMult=1;
 	if (CM.Sim.Has('Santa\'s milk and cookies')) milkMult *= 1.05;
 	if (CM.Sim.hasAura('Breath of Milk')) milkMult *= 1.05;
+	if (Game.hasGod)
+			{
+				var godLvl=Game.hasGod('mother');
+				if (godLvl==1) milkMult*=1.1;
+				else if (godLvl==2) milkMult*=1.06;
+				else if (godLvl==3) milkMult*=1.03;
+			}
 	if (CM.Sim.Has('Kitten helpers')) mult *= (1 + (CM.Sim.AchievementsOwned / 25) * 0.1 * milkMult);
 	if (CM.Sim.Has('Kitten workers')) mult *= (1 + (CM.Sim.AchievementsOwned / 25) * 0.125 * milkMult);
 	if (CM.Sim.Has('Kitten engineers')) mult *= (1 + (CM.Sim.AchievementsOwned / 25) * 0.15 * milkMult);
