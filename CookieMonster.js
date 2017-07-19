@@ -2929,7 +2929,7 @@ CM.Sim.CheckOtherAchiev = function() {
 	if (buildingsOwned >= 100) CM.Sim.Win('Builder');
 	if (buildingsOwned >= 500) CM.Sim.Win('Architect');
 	if (buildingsOwned >= 1000) CM.Sim.Win('Engineer');
-	if (buildingsOwned >= 1500) CM.Sim.Win('Lord of Constructs');
+	if (buildingsOwned >= 2000) CM.Sim.Win('Lord of Constructs');
 	
 	if (CM.Sim.UpgradesOwned >= 20) CM.Sim.Win('Enhancer');
 	if (CM.Sim.UpgradesOwned >= 50) CM.Sim.Win('Augmenter');
